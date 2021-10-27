@@ -8,7 +8,7 @@ router.get('/', function (req, res, next) {
     const url = new URL(fake_url)
     const search_params = url.searchParams
     if (req.method === 'GET') {
-        const value = search_params.get("x");
+        var value = search_params.get("x");
         if(value === null)
         {
             value=Math.round(Math.random()*900);
