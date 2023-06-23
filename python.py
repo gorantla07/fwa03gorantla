@@ -84,6 +84,18 @@ def check_for_spl_char(field_name, spec_dict, spl_char):
                         return f'{msg} : {field_value} : contains special characters.'
 
 
+def validate_path(spec_dict, param, spl_char):
+    err_path = []
+    keys = spec_dict[param].keys()
+    for key in keys:
+        for char in spl_char:
+            if char in key:
+                err_path.append(key)
+                break
+    msg = ','.join([str(v) for v in err_path])
+    return f'Paths : {msg} : contains spl characters'
+
+
 def validate_local_spec(spec_file_path, validation_errors, show_detailed_messages):
     # Validate the local OpenAPI specification file
     file_extension = os.path.splitext(spec_file_path)[1]
@@ -146,12 +158,15 @@ def validate_local_spec(spec_file_path, validation_errors, show_detailed_message
 
     # Custom validation starts here -
     custom_check_attr = [['info', 'title'], ['servers', 'description'], ['servers', 'url']]
-    spl_char = [',', '$', '#', '@', '!', '^', '*', ';', '(', ')', '+', '=', '?', '>', '<', '[', ']', '{',
-                '}', '|', '`', '~']
+    spl_char = [',', '$', '#', '@', '!', '^', '*', ';', '(', ')', '+', '=', '?', '>', '<', '[', ']', '|', '`', '~']
     for attr in custom_check_attr:
         spl_char_errors_list = check_for_spl_char(attr, spec_dict, spl_char)
         if spl_char_errors_list:
             validation_errors.append(spl_char_errors_list)
+
+    path_err_msg = validate_path(spec_dict, 'paths', spl_char)
+    if path_err_msg:
+        validation_errors.append(path_err_msg)
 
     if validation_errors:
         print('OAS validation failed due to the following reasons - ')
